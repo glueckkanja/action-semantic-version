@@ -6,11 +6,11 @@ on:
       - main
   workflow_dispatch:
     inputs:
-      create_tag:
+      create-tag:
         description: "Create a Git tag and release"
         default: false
         type: boolean
-      is_prerelease:
+      is-prerelease:
         description: "Create a prerelease version"
         default: false
         type: boolean
@@ -28,15 +28,14 @@ jobs:
     outputs:
       version: ${{ steps.release.outputs.version }}
       tag: ${{ steps.release.outputs.tag }}
-      bump_type: ${{ steps.release.outputs.bump_type }}
-      previous_tag: ${{ steps.release.outputs.previous_tag }}
-      commit_subject: ${{ steps.release.outputs.commit_subject }}
-      release_id: ${{ steps.release.outputs.release_id }}
+      bump-type: ${{ steps.release.outputs.bump-type }}
+      previous-tag: ${{ steps.release.outputs.previous-tag }}
+      commit-subject: ${{ steps.release.outputs.commit-subject }}
     steps:
       - name: Release Semver Version
         id: release
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          suppress_tag: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.create_tag)) != true }}
-          is_prerelease: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.is_prerelease) }}
+          suppress-release: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.create-tag)) != true }}
+          is-prerelease: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.is-prerelease) }}

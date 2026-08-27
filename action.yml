@@ -12,23 +12,23 @@ inputs:
     description: "Optional prefix to prepend to generated tags (e.g., module names)"
     required: false
     default: ""
-  suppress_release:
+  suppress-release:
     description: "If true, skip creating a GitHub release"
     required: false
     default: "false"
-  suppress_tag:
+  suppress-tag:
     description: "If true, skip creating a Git tag and release"
     required: false
     default: "false"
-  check_last_commit_only:
+  check-last-commit-only:
     description: "If true, only inspect the most recent commit when determining bump type"
     required: false
     default: "false"
-  is_prerelease:
+  is-prerelease:
     description: "If true, generate a prerelease version"
     required: false
     default: "false"
-  prerelease_name:
+  prerelease-name:
     description: "Name for prerelease identifier (e.g., 'prerelease', 'rc', 'alpha')"
     required: false
     default: ""
@@ -40,15 +40,15 @@ outputs:
   tag:
     description: "Created tag name"
     value: ${{ steps.compute.outputs.tag }}
-  bump_type:
+  bump-type:
     description: "Type of bump applied (major, minor, patch)"
-    value: ${{ steps.compute.outputs.bump_type }}
-  previous_tag:
+    value: ${{ steps.compute.outputs.bump-type }}
+  previous-tag:
     description: "Most recent tag prior to calculation (if any)"
-    value: ${{ steps.compute.outputs.previous_tag }}
-  commit_subject:
+    value: ${{ steps.compute.outputs.previous-tag }}
+  commit-subject:
     description: "Commit subject that drove the bump decision"
-    value: ${{ steps.compute.outputs.commit_subject }}
+    value: ${{ steps.compute.outputs.commit-subject }}
 
 runs:
   using: composite
@@ -63,9 +63,9 @@ runs:
       id: compute
       env:
         PREFIX: ${{ inputs.prefix }}
-        CHECK_LAST_COMMIT_ONLY: ${{ inputs.check_last_commit_only }}
-        IS_PRERELEASE: ${{ inputs.is_prerelease }}
-        PRERELEASE_NAME: ${{ inputs.prerelease_name }}
+        CHECK_LAST_COMMIT_ONLY: ${{ inputs.check-last-commit-only }}
+        IS_PRERELEASE: ${{ inputs.is-prerelease }}
+        PRERELEASE_NAME: ${{ inputs.prerelease-name }}
       shell: bash
       run: |
         bash "${{ github.action_path }}/scripts/compute-version.sh"
@@ -75,14 +75,14 @@ runs:
       env:
         VERSION: ${{ steps.compute.outputs.version }}
         TAG: ${{ steps.compute.outputs.tag }}
-        BUMP_TYPE: ${{ steps.compute.outputs.bump_type }}
-        PREVIOUS_TAG: ${{ steps.compute.outputs.previous_tag }}
-        COMMIT_SUBJECT: ${{ steps.compute.outputs.commit_subject }}
+        BUMP_TYPE: ${{ steps.compute.outputs.bump-type }}
+        PREVIOUS_TAG: ${{ steps.compute.outputs.previous-tag }}
+        COMMIT_SUBJECT: ${{ steps.compute.outputs.commit-subject }}
       run: |
         bash "${{ github.action_path }}/scripts/write-summary.sh"
 
     - name: Create and push tag
-      if: ${{ inputs.suppress_tag != 'true' }}
+      if: ${{ inputs.suppress-tag != 'true' }}
       env:
         TAG_NAME: ${{ steps.compute.outputs.tag }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
@@ -91,12 +91,12 @@ runs:
         bash "${{ github.action_path }}/scripts/create-tag.sh"
 
     - name: Create GitHub release
-      if: ${{ inputs.suppress_tag != 'true' && inputs.suppress_release != 'true' }}
+      if: ${{ inputs.suppress-tag != 'true' && inputs.suppress-release != 'true' }}
       env:
         TAG_NAME: ${{ steps.compute.outputs.tag }}
-        CHANGELOG_BASE_TAG: ${{ steps.compute.outputs.previous_tag_for_changelog }}
+        CHANGELOG_BASE_TAG: ${{ steps.compute.outputs.previous-tag-for-changelog }}
         GH_TOKEN: ${{ inputs.github-token }}
-        IS_PRERELEASE: ${{ inputs.is_prerelease }}
+        IS_PRERELEASE: ${{ inputs.is-prerelease }}
       shell: bash
       run: |
         bash "${{ github.action_path }}/scripts/create-release.sh"
