@@ -1,16 +1,41 @@
-name: Release Example
+name: Release Semver Version
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      create-tag:
+        description: "Create a Git tag and release"
+        default: false
+        type: boolean
+      is-prerelease:
+        description: "Create a prerelease version"
+        default: false
+        type: boolean
 
-permissions: {}
+permissions:
+  contents: write # needed for the semver action (create tag and release)
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag }}
+      bump-type: ${{ steps.release.outputs.bump-type }}
+      previous-tag: ${{ steps.release.outputs.previous-tag }}
+      commit-subject: ${{ steps.release.outputs.commit-subject }}
     steps:
-      - name: Release Automation
-        run: |
-          echo "use this pipeline for release automation"
+      - name: Release Semver Version
+        id: release
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          suppress-release: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.create-tag)) != true }}
+          is-prerelease: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.is-prerelease) }}
