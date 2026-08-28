@@ -53,9 +53,9 @@ jobs:
         run: |
           echo "Version: ${{ needs.version.outputs.version }}"
           echo "Tag:     ${{ needs.version.outputs.tag }}"
-          echo "Bump:    ${{ needs.version.outputs.bump_type }}"
-          echo "Prev tag:${{ needs.version.outputs.previous_tag }}"
-          echo "Commit:  ${{ needs.version.outputs.commit_subject }}"
+          echo "Bump:    ${{ needs.version.outputs.bump-type }}"
+          echo "Prev tag:${{ needs.version.outputs.previous-tag }}"
+          echo "Commit:  ${{ needs.version.outputs.commit-subject }}"
 ```
 
 ### Permissions
