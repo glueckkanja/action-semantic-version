@@ -144,12 +144,12 @@ fi
 
 new_tag="${prefix_with_dash}v${new_version}"
 
-printf 'bump-type=%s\n' "$bump_type" >> "$GITHUB_OUTPUT"
-printf 'previous-tag=%s\n' "$last_stable_tag" >> "$GITHUB_OUTPUT"
-printf 'previous-tag-for-changelog=%s\n' "$changelog_base_tag" >> "$GITHUB_OUTPUT"
+printf 'bump_type=%s\n' "$bump_type" >> "$GITHUB_OUTPUT"
+printf 'previous_tag=%s\n' "$last_stable_tag" >> "$GITHUB_OUTPUT"
+printf 'previous_tag_for_changelog=%s\n' "$changelog_base_tag" >> "$GITHUB_OUTPUT"
 printf 'version=%s\n' "$new_version" >> "$GITHUB_OUTPUT"
 printf 'tag=%s\n' "$new_tag" >> "$GITHUB_OUTPUT"
-printf 'commit-subject=%s\n' "$commit_subject" >> "$GITHUB_OUTPUT"
+printf 'commit_subject=%s\n' "$commit_subject" >> "$GITHUB_OUTPUT"
 
 echo "Determined $bump_type bump from '$commit_subject' -> $new_tag"
 echo "Changelog will be generated from: ${changelog_base_tag:-initial commit}"

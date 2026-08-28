@@ -28,22 +28,22 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
-      bump-type: ${{ steps.version.outputs.bump-type }}
-      previous-tag: ${{ steps.version.outputs.previous-tag }}
-      commit-subject: ${{ steps.version.outputs.commit-subject }}
+      bump_type: ${{ steps.version.outputs.bump_type }}
+      previous_tag: ${{ steps.version.outputs.previous_tag }}
+      commit_subject: ${{ steps.version.outputs.commit_subject }}
     steps:
       - name: Generate semantic version
         id: version
         uses: glueckkanja/action-semver-version@SHA # v1.0.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           prefix: license-module # optional: prefix for tags like license-module-vX.Y.Z
-          suppress-release: "false" # optional: set true to skip creating a GitHub release
-          is-draft-release: "false" # optional: set true to create a draft GitHub release
-          suppress-tag: "false" # optional: set true to skip both tag and release creation
-          check-last-commit-only: "false" # optional: set true to only inspect the latest commit
-          is-prerelease: "false" # optional: set true to generate a prerelease version
-          prerelease-name: "" # optional: set a prerelease suffix name (for example 'rc', 'alpha', 'beta'); keep empty to create a prerelease without suffix
+          suppress_release: "false" # optional: set true to skip creating a GitHub release
+          is_draft_release: "false" # optional: set true to create a draft GitHub release
+          suppress_tag: "false" # optional: set true to skip both tag and release creation
+          check_last_commit_only: "false" # optional: set true to only inspect the latest commit
+          is_prerelease: "false" # optional: set true to generate a prerelease version
+          prerelease_name: "" # optional: set a prerelease suffix name (for example 'rc', 'alpha', 'beta'); keep empty to create a prerelease without suffix
 
   publish:
     runs-on: ubuntu-latest
@@ -53,33 +53,33 @@ jobs:
         run: |
           echo "Version: ${{ needs.version.outputs.version }}"
           echo "Tag:     ${{ needs.version.outputs.tag }}"
-          echo "Bump:    ${{ needs.version.outputs.bump-type }}"
-          echo "Prev tag:${{ needs.version.outputs.previous-tag }}"
-          echo "Commit:  ${{ needs.version.outputs.commit-subject }}"
+          echo "Bump:    ${{ needs.version.outputs.bump_type }}"
+          echo "Prev tag:${{ needs.version.outputs.previous_tag }}"
+          echo "Commit:  ${{ needs.version.outputs.commit_subject }}"
 ```
 
 ### Permissions
 
-- `contents: write` — Required on the **caller's job**. Allows the action to create tags and releases. Pass `${{ secrets.GITHUB_TOKEN }}` via the `github-token` input.
+- `contents: write` — Required on the **caller's job**. Allows the action to create tags and releases. Pass `${{ secrets.GITHUB_TOKEN }}` via the `github_token` input.
 
 ### Inputs
 
-- `github-token` _(string, required)_ – GitHub token with `contents: write` permission. Pass `${{ secrets.GITHUB_TOKEN }}`.
+- `github_token` _(string, required)_ – GitHub token with `contents: write` permission. Pass `${{ secrets.GITHUB_TOKEN }}`.
 - `prefix` _(string, default: empty)_ – Optional prefix prepended to generated tags (for example `license-module-vX.Y.Z`).
-- `suppress-release` _(boolean, default: false)_ – When `true`, skips creating a GitHub release while still creating tags (unless suppressed below).
-- `is-draft-release` _(string `"true"/"false"`, default: `"false"`)_ – When `"true"`, creates the GitHub release as a draft.
-- `suppress-tag` _(boolean, default: false)_ – When `true`, skips creating both the Git tag and the GitHub release.
-- `check-last-commit_only` _(boolean, default: false)_ – When `true`, only the most recent commit is inspected to determine the bump type instead of all commits since the previous tag.
-- `is-prerelease` _(boolean, default: false)_ – When `true`, generates a prerelease version (for example `1.2.3-rc.1`).
-- `prerelease-name` _(string, default: "prerelease")_ – Name for the prerelease identifier (for example `rc`, `alpha`, `beta`). If set, the version includes a suffix (for example `1.8.2-rc.1`). If empty, the version remains plain semver (for example `1.8.2`) while still creating a prerelease release.
+- `suppress_release` _(boolean, default: false)_ – When `true`, skips creating a GitHub release while still creating tags (unless suppressed below).
+- `is_draft_release` _(string `"true"/"false"`, default: `"false"`)_ – When `"true"`, creates the GitHub release as a draft.
+- `suppress_tag` _(boolean, default: false)_ – When `true`, skips creating both the Git tag and the GitHub release.
+- `check_last_commit_only` _(boolean, default: false)_ – When `true`, only the most recent commit is inspected to determine the bump type instead of all commits since the previous tag.
+- `is_prerelease` _(boolean, default: false)_ – When `true`, generates a prerelease version (for example `1.2.3-rc.1`).
+- `prerelease_name` _(string, default: "prerelease")_ – Name for the prerelease identifier (for example `rc`, `alpha`, `beta`). If set, the version includes a suffix (for example `1.8.2-rc.1`). If empty, the version remains plain semver (for example `1.8.2`) while still creating a prerelease release.
 
 ### Outputs
 
 - `version` – The calculated semantic version (for example `1.2.3`).
 - `tag` – The tag name that would be created (for example `v1.2.3` or `module-v1.2.3`).
-- `bump-type` – The bump classification applied (`major`, `minor`, or `patch`).
-- `previous-tag` – The most recent matching tag prior to this run, if any.
-- `commit-subject` – The commit message subject that determined the bump decision.
+- `bump_type` – The bump classification applied (`major`, `minor`, or `patch`).
+- `previous_tag` – The most recent matching tag prior to this run, if any.
+- `commit_subject` – The commit message subject that determined the bump decision.
 
 ### Bump rules
 

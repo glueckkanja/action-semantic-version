@@ -6,11 +6,11 @@ on:
       - main
   workflow_dispatch:
     inputs:
-      create-tag:
+      create_tag:
         description: "Create a Git tag and release"
         default: false
         type: boolean
-      is-prerelease:
+      is_prerelease:
         description: "Create a prerelease version"
         default: false
         type: boolean
@@ -28,9 +28,9 @@ jobs:
     outputs:
       version: ${{ steps.release.outputs.version }}
       tag: ${{ steps.release.outputs.tag }}
-      bump-type: ${{ steps.release.outputs.bump-type }}
-      previous-tag: ${{ steps.release.outputs.previous-tag }}
-      commit-subject: ${{ steps.release.outputs.commit-subject }}
+      bump_type: ${{ steps.release.outputs.bump_type }}
+      previous_tag: ${{ steps.release.outputs.previous_tag }}
+      commit_subject: ${{ steps.release.outputs.commit_subject }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -42,6 +42,6 @@ jobs:
         id: release
         uses: ./
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          suppress-release: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.create-tag)) != true }}
-          is-prerelease: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.is-prerelease) }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          suppress_release: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.create_tag)) != true }}
+          is_prerelease: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.is_prerelease) }}
