@@ -5,30 +5,30 @@ description: >
   with auto-generated release notes.
 
 inputs:
-  github-token:
+  github_token:
     description: "GitHub token with contents:write permission for tagging and releasing"
     required: true
   prefix:
     description: "Optional prefix to prepend to generated tags (e.g., module names)"
     required: false
     default: ""
-  suppress-release:
+  suppress_release:
     description: "If true, skip creating a GitHub release"
     required: false
     default: "false"
-  suppress-tag:
+  suppress_tag:
     description: "If true, skip creating a Git tag and release"
     required: false
     default: "false"
-  check-last-commit-only:
+  check_last_commit_only:
     description: "If true, only inspect the most recent commit when determining bump type"
     required: false
     default: "false"
-  is-prerelease:
+  is_prerelease:
     description: "If true, generate a prerelease version"
     required: false
     default: "false"
-  prerelease-name:
+  prerelease_name:
     description: "Name for prerelease identifier (e.g., 'prerelease', 'rc', 'alpha')"
     required: false
     default: ""
@@ -40,15 +40,15 @@ outputs:
   tag:
     description: "Created tag name"
     value: ${{ steps.compute.outputs.tag }}
-  bump-type:
+  bump_type:
     description: "Type of bump applied (major, minor, patch)"
-    value: ${{ steps.compute.outputs.bump-type }}
-  previous-tag:
+    value: ${{ steps.compute.outputs.bump_type }}
+  previous_tag:
     description: "Most recent tag prior to calculation (if any)"
-    value: ${{ steps.compute.outputs.previous-tag }}
-  commit-subject:
+    value: ${{ steps.compute.outputs.previous_tag }}
+  commit_subject:
     description: "Commit subject that drove the bump decision"
-    value: ${{ steps.compute.outputs.commit-subject }}
+    value: ${{ steps.compute.outputs.commit_subject }}
 
 runs:
   using: composite
@@ -63,9 +63,9 @@ runs:
       id: compute
       env:
         PREFIX: ${{ inputs.prefix }}
-        CHECK_LAST_COMMIT_ONLY: ${{ inputs.check-last-commit-only }}
-        IS_PRERELEASE: ${{ inputs.is-prerelease }}
-        PRERELEASE_NAME: ${{ inputs.prerelease-name }}
+        CHECK_LAST_COMMIT_ONLY: ${{ inputs.check_last_commit_only }}
+        IS_PRERELEASE: ${{ inputs.is_prerelease }}
+        PRERELEASE_NAME: ${{ inputs.prerelease_name }}
       shell: bash
       run: |
         bash "${{ github.action_path }}/scripts/compute-version.sh"
@@ -75,28 +75,28 @@ runs:
       env:
         VERSION: ${{ steps.compute.outputs.version }}
         TAG: ${{ steps.compute.outputs.tag }}
-        BUMP_TYPE: ${{ steps.compute.outputs.bump-type }}
-        PREVIOUS_TAG: ${{ steps.compute.outputs.previous-tag }}
-        COMMIT_SUBJECT: ${{ steps.compute.outputs.commit-subject }}
+        BUMP_TYPE: ${{ steps.compute.outputs.bump_type }}
+        PREVIOUS_TAG: ${{ steps.compute.outputs.previous_tag }}
+        COMMIT_SUBJECT: ${{ steps.compute.outputs.commit_subject }}
       run: |
         bash "${{ github.action_path }}/scripts/write-summary.sh"
 
     - name: Create and push tag
-      if: ${{ inputs.suppress-tag != 'true' }}
+      if: ${{ inputs.suppress_tag != 'true' }}
       env:
         TAG_NAME: ${{ steps.compute.outputs.tag }}
-        GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
       shell: bash
       run: |
         bash "${{ github.action_path }}/scripts/create-tag.sh"
 
     - name: Create GitHub release
-      if: ${{ inputs.suppress-tag != 'true' && inputs.suppress-release != 'true' }}
+      if: ${{ inputs.suppress_tag != 'true' && inputs.suppress_release != 'true' }}
       env:
         TAG_NAME: ${{ steps.compute.outputs.tag }}
-        CHANGELOG_BASE_TAG: ${{ steps.compute.outputs.previous-tag-for-changelog }}
-        GH_TOKEN: ${{ inputs.github-token }}
-        IS_PRERELEASE: ${{ inputs.is-prerelease }}
+        CHANGELOG_BASE_TAG: ${{ steps.compute.outputs.previous_tag_for_changelog }}
+        GH_TOKEN: ${{ inputs.github_token }}
+        IS_PRERELEASE: ${{ inputs.is_prerelease }}
       shell: bash
       run: |
         bash "${{ github.action_path }}/scripts/create-release.sh"
