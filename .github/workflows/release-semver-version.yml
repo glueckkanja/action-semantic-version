@@ -40,7 +40,7 @@ jobs:
 
       - name: Release Semver Version
         id: release
-        uses: ./
+        uses: $/
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           suppress_release: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.create_tag)) != true }}
