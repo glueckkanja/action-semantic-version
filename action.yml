@@ -49,6 +49,9 @@ outputs:
   commit_subject:
     description: "Commit subject that drove the bump decision"
     value: ${{ steps.compute.outputs.commit_subject }}
+  release_id:
+    description: "Numeric ID of the created/existing GitHub release. Empty when release creation is suppressed."
+    value: ${{ steps.release.outputs.release_id }}
 
 runs:
   using: composite
@@ -70,17 +73,6 @@ runs:
       run: |
         bash "${{ github.action_path }}/scripts/compute-version.sh"
 
-    - name: Write summary
-      shell: bash
-      env:
-        VERSION: ${{ steps.compute.outputs.version }}
-        TAG: ${{ steps.compute.outputs.tag }}
-        BUMP_TYPE: ${{ steps.compute.outputs.bump_type }}
-        PREVIOUS_TAG: ${{ steps.compute.outputs.previous_tag }}
-        COMMIT_SUBJECT: ${{ steps.compute.outputs.commit_subject }}
-      run: |
-        bash "${{ github.action_path }}/scripts/write-summary.sh"
-
     - name: Create and push tag
       if: ${{ inputs.suppress_tag != 'true' }}
       env:
@@ -91,6 +83,7 @@ runs:
         bash "${{ github.action_path }}/scripts/create-tag.sh"
 
     - name: Create GitHub release
+      id: release
       if: ${{ inputs.suppress_tag != 'true' && inputs.suppress_release != 'true' }}
       env:
         TAG_NAME: ${{ steps.compute.outputs.tag }}
@@ -100,3 +93,15 @@ runs:
       shell: bash
       run: |
         bash "${{ github.action_path }}/scripts/create-release.sh"
+
+    - name: Write summary
+      shell: bash
+      env:
+        VERSION: ${{ steps.compute.outputs.version }}
+        TAG: ${{ steps.compute.outputs.tag }}
+        BUMP_TYPE: ${{ steps.compute.outputs.bump_type }}
+        PREVIOUS_TAG: ${{ steps.compute.outputs.previous_tag }}
+        COMMIT_SUBJECT: ${{ steps.compute.outputs.commit_subject }}
+        RELEASE_ID: ${{ steps.release.outputs.release_id }}
+      run: |
+        bash "${{ github.action_path }}/scripts/write-summary.sh"
