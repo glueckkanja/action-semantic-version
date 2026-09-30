@@ -9,6 +9,7 @@ if [[ -n "$existing_release_id" ]]; then
 fi
 
 is_prerelease="${IS_PRERELEASE,,}"
+# Build the release command with conditional notes-start-tag
 release_args=(
   "${TAG_NAME}"
   --title "${TAG_NAME}"
@@ -17,10 +18,12 @@ release_args=(
 )
 
 if [[ "$is_prerelease" == "true" ]]; then
+  # Add prerelease flag if needed
   release_args+=(--prerelease)
 fi
 
 if [[ -n "$CHANGELOG_BASE_TAG" ]]; then
+# Add notes-start-tag if there's a previous tag for changelog
   release_args+=(--notes-start-tag "$CHANGELOG_BASE_TAG")
   echo "Generating release notes from ${CHANGELOG_BASE_TAG} to ${TAG_NAME}"
 else
