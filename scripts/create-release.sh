@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-release_id=""
 existing_release_id=$(gh release view "${TAG_NAME}" --json databaseId --jq '.databaseId' 2>/dev/null) || true
 if [[ -n "$existing_release_id" ]]; then
   echo "Release ${TAG_NAME} already exists." >&2
