@@ -31,6 +31,7 @@ jobs:
       bump_type: ${{ steps.version.outputs.bump_type }}
       previous_tag: ${{ steps.version.outputs.previous_tag }}
       commit_subject: ${{ steps.version.outputs.commit_subject }}
+      release_id: ${{ steps.version.outputs.release_id }}
     steps:
       - name: Generate semantic version
         id: version
@@ -51,11 +52,12 @@ jobs:
     steps:
       - name: Show generated version
         run: |
-          echo "Version: ${{ needs.version.outputs.version }}"
-          echo "Tag:     ${{ needs.version.outputs.tag }}"
-          echo "Bump:    ${{ needs.version.outputs.bump_type }}"
-          echo "Prev tag:${{ needs.version.outputs.previous_tag }}"
-          echo "Commit:  ${{ needs.version.outputs.commit_subject }}"
+          echo "Version:    ${{ needs.version.outputs.version }}"
+          echo "Tag:        ${{ needs.version.outputs.tag }}"
+          echo "Bump:       ${{ needs.version.outputs.bump_type }}"
+          echo "Prev tag:   ${{ needs.version.outputs.previous_tag }}"
+          echo "Commit:     ${{ needs.version.outputs.commit_subject }}"
+          echo "Release ID: ${{ needs.version.outputs.release_id }}"
 ```
 
 ### Permissions
@@ -80,6 +82,7 @@ jobs:
 - `bump_type` – The bump classification applied (`major`, `minor`, or `patch`).
 - `previous_tag` – The most recent matching tag prior to this run, if any.
 - `commit_subject` – The commit message subject that determined the bump decision.
+- `release_id` – The numeric ID of the created or pre-existing GitHub release. Empty when release creation is suppressed via `suppress_tag` or `suppress_release`.
 
 ### Bump rules
 
