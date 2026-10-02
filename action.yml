@@ -69,18 +69,18 @@ runs:
         CHECK_LAST_COMMIT_ONLY: ${{ inputs.check_last_commit_only }}
         IS_PRERELEASE: ${{ inputs.is_prerelease }}
         PRERELEASE_NAME: ${{ inputs.prerelease_name }}
-      shell: bash
+      shell: pwsh
       run: |
-        bash "${{ github.action_path }}/scripts/compute-version.sh"
+        & "${{ github.action_path }}/scripts/compute-version.ps1"
 
     - name: Create and push tag
       if: ${{ inputs.suppress_tag != 'true' }}
       env:
         TAG_NAME: ${{ steps.compute.outputs.tag }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
-      shell: bash
+      shell: pwsh
       run: |
-        bash "${{ github.action_path }}/scripts/create-tag.sh"
+        & "${{ github.action_path }}/scripts/create-tag.ps1"
 
     - name: Create GitHub release
       id: release
@@ -90,12 +90,12 @@ runs:
         CHANGELOG_BASE_TAG: ${{ steps.compute.outputs.previous_tag_for_changelog }}
         GH_TOKEN: ${{ inputs.github_token }}
         IS_PRERELEASE: ${{ inputs.is_prerelease }}
-      shell: bash
+      shell: pwsh
       run: |
-        bash "${{ github.action_path }}/scripts/create-release.sh"
+        & "${{ github.action_path }}/scripts/create-release.ps1"
 
     - name: Write summary
-      shell: bash
+      shell: pwsh
       env:
         VERSION: ${{ steps.compute.outputs.version }}
         TAG: ${{ steps.compute.outputs.tag }}
@@ -104,4 +104,4 @@ runs:
         COMMIT_SUBJECT: ${{ steps.compute.outputs.commit_subject }}
         RELEASE_ID: ${{ steps.release.outputs.release_id }}
       run: |
-        bash "${{ github.action_path }}/scripts/write-summary.sh"
+        & "${{ github.action_path }}/scripts/write-summary.ps1"
