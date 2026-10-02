@@ -127,7 +127,7 @@ if ($IsPrerelease -eq 'true') {
     $PrereleasePattern = "^(\d+\.\d+\.\d+)-$EscapedPrereleaseName\.(\d+)$"
     foreach ($Tag in $AllTags) {
         $Version = Get-VersionFromTag -Tag $Tag -PrefixWithDash $PrefixWithDash
-        if ($Version -match $PrereleasePattern) {
+        if ($Version -cmatch $PrereleasePattern) {
             $BaseVersion = $Matches[1]
             $PrereleaseNumber = [int]$Matches[2]
             if ($BaseVersion -eq $TargetBaseVersion) {
