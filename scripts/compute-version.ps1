@@ -66,8 +66,6 @@ if ($CheckLastCommitOnly -eq 'true') {
     }
 }
 
-$CommitSubjects = @($CommitSubjects | Where-Object { $null -ne $_ -and $_ -ne '' })
-
 $HighestLevel = 0
 $CommitSubject = ''
 
