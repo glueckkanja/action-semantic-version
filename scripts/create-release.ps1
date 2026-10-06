@@ -28,8 +28,7 @@ if ($ChangelogBaseTag) {
     # Add notes-start-tag if there's a previous tag for changelog
     $ReleaseArgs += @('--notes-start-tag', $ChangelogBaseTag)
     Write-Output "Generating release notes from $ChangelogBaseTag to $TagName"
-}
-else {
+} else {
     Write-Output "Generating release notes from initial commit to $TagName"
 }
 

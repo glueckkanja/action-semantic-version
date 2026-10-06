@@ -9,8 +9,7 @@ $PrereleaseName = $env:PRERELEASE_NAME ? $env:PRERELEASE_NAME : 'prerelease'
 if ($Prefix) {
     $TagMatch = "$Prefix-v*"
     $PrefixWithDash = "$Prefix-"
-}
-else {
+} else {
     $TagMatch = 'v*'
     $PrefixWithDash = ''
 }
@@ -26,8 +25,7 @@ function Get-VersionFromTag {
     param([string]$Tag, [string]$PrefixWithDash)
     $Stripped = if ($PrefixWithDash -and $Tag.StartsWith($PrefixWithDash)) {
         $Tag.Substring($PrefixWithDash.Length)
-    }
-    else {
+    } else {
         $Tag
     }
     if ($Stripped.StartsWith('v')) { $Stripped.Substring(1) } else { $Stripped }
@@ -57,16 +55,13 @@ $MinorPattern = '^feat(\([^)]*\))?:'
 if ($CheckLastCommitOnly -eq 'true') {
     if ($LastStableTag) {
         $CommitSubjects = @(& git log -1 --pretty=%s "$LastStableTag..HEAD")
-    }
-    else {
+    } else {
         $CommitSubjects = @(& git log -1 --pretty=%s)
     }
-}
-else {
+} else {
     if ($LastStableTag) {
         $CommitSubjects = @(& git log "$LastStableTag..HEAD" --pretty=%s)
-    }
-    else {
+    } else {
         $CommitSubjects = @(& git log --pretty=%s)
     }
 }
@@ -84,8 +79,7 @@ foreach ($Subject in $CommitSubjects) {
         $HighestLevel = 2
         $CommitSubject = $Subject
         break
-    }
-    elseif ($Subject -match $MinorPattern) {
+    } elseif ($Subject -match $MinorPattern) {
         if ($HighestLevel -lt 1) {
             $HighestLevel = 1
             $CommitSubject = $Subject
@@ -146,8 +140,7 @@ if ($IsPrerelease -eq 'true') {
     $NewVersion = "$Major.$Minor.$Patch-$PrereleaseName.$PrereleaseVersion"
     # For prereleases, compare against the previous prerelease for this base version if present, otherwise last stable
     $ChangelogBaseTag = $LastPrereleaseTag ? $LastPrereleaseTag : $LastStableTag
-}
-else {
+} else {
     $NewVersion = "$Major.$Minor.$Patch"
     # For stable releases, always use the last stable tag
     $ChangelogBaseTag = $LastStableTag
