@@ -75,7 +75,7 @@ jobs:
 - `check_last_commit_only` _(boolean, default: false)_ – When `true`, only the most recent commit is inspected to determine the bump type instead of all commits since the previous tag.
 - `is_prerelease` _(boolean, default: false)_ – When `true`, generates a prerelease version (for example `1.2.3-rc.1`).
 - `prerelease_name` _(string, default: "prerelease")_ – Name for the prerelease identifier (for example `rc`, `alpha`, `beta`). If set, the version includes a suffix (for example `1.8.2-rc.1`). If empty, the version remains plain semver (for example `1.8.2`) while still creating a prerelease release.
-- `asset_path` _(string, default: empty)_ – Path to a file or directory to attach to the release as assets. When set, the release is created as a draft first, assets are uploaded, then the release is published - ensuring the release is never visible without its assets.
+- `asset_path` _(string, default: empty)_ – Path to a file or directory to attach to the release as assets. When set, the release is created as a draft first and assets are uploaded before publication. If `is_draft_release` is `"true"`, the release remains a draft after assets are uploaded.
 
 ### Outputs
 

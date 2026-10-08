@@ -5,6 +5,7 @@ $TagName = $env:TAG_NAME
 $GithubSha = $env:GITHUB_SHA
 $ChangelogBaseTag = $env:CHANGELOG_BASE_TAG
 $IsPrerelease = ($env:IS_PRERELEASE ?? '').ToLowerInvariant()
+$IsDraftRelease = ($env:IS_DRAFT_RELEASE ?? '').ToLowerInvariant()
 $AssetPath = $env:ASSET_PATH
 
 $ExistingReleaseId = & gh release view $TagName --json databaseId --jq '.databaseId' 2>$null
@@ -24,7 +25,7 @@ if ($IsPrerelease -eq 'true') {
     $ReleaseArgs += '--prerelease'
 }
 
-if ($AssetPath) {
+if ($AssetPath -or ($IsDraftRelease -eq 'true')) {
     $ReleaseArgs += '--draft'
 }
 
