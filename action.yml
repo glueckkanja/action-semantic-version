@@ -16,6 +16,10 @@ inputs:
     description: "If true, skip creating a GitHub release"
     required: false
     default: "false"
+  is_draft_release:
+    description: "If true, create the GitHub release as a draft"
+    required: false
+    default: "false"
   suppress_tag:
     description: "If true, skip creating a Git tag and release"
     required: false
@@ -96,6 +100,7 @@ runs:
         CHANGELOG_BASE_TAG: ${{ steps.compute.outputs.previous_tag_for_changelog }}
         GH_TOKEN: ${{ inputs.github_token }}
         IS_PRERELEASE: ${{ inputs.is_prerelease }}
+        IS_DRAFT_RELEASE: ${{ inputs.is_draft_release }}
         ASSET_PATH: ${{ inputs.asset_path }}
       shell: pwsh
       run: |
@@ -108,7 +113,7 @@ runs:
         github_token: ${{ inputs.github_token }}
         release_id: ${{ steps.release.outputs.release_id }}
         asset_path: ${{ inputs.asset_path }}
-        publish_draft_release: "true"
+        publish_draft_release: ${{ inputs.is_draft_release != 'true' }}
 
     - name: Write summary
       shell: pwsh
