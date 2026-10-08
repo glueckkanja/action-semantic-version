@@ -4,7 +4,7 @@ $ErrorActionPreference = 'Stop'
 $Prefix = $env:PREFIX ?? ''
 $CheckLastCommitOnly = ($env:CHECK_LAST_COMMIT_ONLY ?? '').ToLowerInvariant()
 $IsPrerelease = ($env:IS_PRERELEASE ?? '').ToLowerInvariant()
-$PrereleaseName = $env:PRERELEASE_NAME ? $env:PRERELEASE_NAME : 'prerelease'
+$PrereleaseName = $env:PRERELEASE_NAME ?? ''
 
 if ($Prefix) {
     $TagMatch = "$Prefix-v*"
@@ -114,7 +114,7 @@ $TargetBaseVersion = "$Major.$Minor.$Patch"
 # Find the last prerelease for this target base version and name
 $LastPrereleaseTag = ''
 $LastPrereleaseVersion = 0
-if ($IsPrerelease -eq 'true') {
+if ($IsPrerelease -eq 'true' -and $PrereleaseName) {
     $EscapedPrereleaseName = [regex]::Escape($PrereleaseName)
     $PrereleasePattern = "^(\d+\.\d+\.\d+)-$EscapedPrereleaseName\.(\d+)$"
     foreach ($Tag in $AllTags) {
@@ -132,7 +132,7 @@ if ($IsPrerelease -eq 'true') {
 }
 
 # Build the final version string and determine changelog base tag
-if ($IsPrerelease -eq 'true') {
+if ($IsPrerelease -eq 'true' -and $PrereleaseName) {
     # Increment prerelease version
     $PrereleaseVersion = $LastPrereleaseVersion + 1
     $NewVersion = "$Major.$Minor.$Patch-$PrereleaseName.$PrereleaseVersion"
