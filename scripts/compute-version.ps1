@@ -4,7 +4,7 @@ $ErrorActionPreference = 'Stop'
 $Prefix = $env:PREFIX ?? ''
 $CheckLastCommitOnly = ($env:CHECK_LAST_COMMIT_ONLY ?? '').ToLowerInvariant()
 $IsPrerelease = ($env:IS_PRERELEASE ?? '').ToLowerInvariant()
-$PrereleaseName = $env:PRERELEASE_NAME ?? ''
+$PrereleaseName = ($env:PRERELEASE_NAME ?? '').Trim()
 
 if ($Prefix) {
     $TagMatch = "$Prefix-v*"
