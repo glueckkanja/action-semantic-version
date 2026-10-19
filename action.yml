@@ -33,7 +33,7 @@ inputs:
     required: false
     default: "false"
   prerelease_name:
-    description: "Name for prerelease identifier (e.g., 'prerelease', 'rc', 'alpha')"
+    description: "Name for prerelease identifier (e.g., rc, alpha, beta). If empty, keeps plain semver while still marking the release as prerelease."
     required: false
     default: ""
   asset_path:
@@ -58,7 +58,7 @@ outputs:
     description: "Commit subject that drove the bump decision"
     value: ${{ steps.compute.outputs.commit_subject }}
   release_id:
-    description: "Numeric ID of the created/existing GitHub release. Empty when release creation is suppressed."
+    description: "Numeric ID of the created GitHub release. Empty when release creation is suppressed."
     value: ${{ steps.release.outputs.release_id }}
 
 runs:
@@ -79,9 +79,10 @@ runs:
         CHECK_LAST_COMMIT_ONLY: ${{ inputs.check_last_commit_only }}
         IS_PRERELEASE: ${{ inputs.is_prerelease }}
         PRERELEASE_NAME: ${{ inputs.prerelease_name }}
+        GH_TOKEN: ${{ inputs.github_token }}
       shell: pwsh
       run: |
-        & "${{ github.action_path }}/scripts/compute-version.ps1"
+        & "${{ github.action_path }}/scripts/compute-next-version.ps1"
 
     - name: Create and push tag
       if: ${{ inputs.suppress_tag != 'true' }}
@@ -90,7 +91,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
       shell: pwsh
       run: |
-        & "${{ github.action_path }}/scripts/create-tag.ps1"
+        & "${{ github.action_path }}/scripts/create-and-push-tag.ps1"
 
     - name: Create GitHub release
       id: release
@@ -98,13 +99,14 @@ runs:
       env:
         TAG_NAME: ${{ steps.compute.outputs.tag }}
         CHANGELOG_BASE_TAG: ${{ steps.compute.outputs.previous_tag_for_changelog }}
+        PREFIX: ${{ inputs.prefix }}
         GH_TOKEN: ${{ inputs.github_token }}
         IS_PRERELEASE: ${{ inputs.is_prerelease }}
         IS_DRAFT_RELEASE: ${{ inputs.is_draft_release }}
         ASSET_PATH: ${{ inputs.asset_path }}
       shell: pwsh
       run: |
-        & "${{ github.action_path }}/scripts/create-release.ps1"
+        & "${{ github.action_path }}/scripts/create-github-release.ps1"
 
     - name: Attach assets to release
       if: ${{ steps.release.outputs.release_id != '' && inputs.asset_path != '' }}
@@ -125,4 +127,4 @@ runs:
         COMMIT_SUBJECT: ${{ steps.compute.outputs.commit_subject }}
         RELEASE_ID: ${{ steps.release.outputs.release_id }}
       run: |
-        & "${{ github.action_path }}/scripts/write-summary.ps1"
+        & "${{ github.action_path }}/scripts/write-step-summary.ps1"

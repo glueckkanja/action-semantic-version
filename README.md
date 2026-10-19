@@ -84,19 +84,33 @@ jobs:
 - `bump_type` – The bump classification applied (`major`, `minor`, or `patch`).
 - `previous_tag` – The most recent matching tag prior to this run, if any.
 - `commit_subject` – The commit message subject that determined the bump decision.
-- `release_id` – The numeric ID of the created or pre-existing GitHub release. Empty when release creation is suppressed via `suppress_tag` or `suppress_release`.
+- `release_id` – Numeric ID of the created GitHub release. Empty when release creation is suppressed via `suppress_release` or `suppress_tag`.
+
+The run summary also includes a direct link to the created GitHub release for quick access.
 
 ### Bump rules
 
-The workflow inspects the latest commit message and applies the following precedence:
+The action inspects commit messages and applies the following precedence:
 
-- **MAJOR**: If the first word ends with `!:` (for example `feat!:`, `fix!:`, `chore!:`, `feat(scope)!:`).
-- **MINOR**: If the subject starts with `feat:` or `feat(<scope>):`, case-insensitive.
+- **MAJOR**: If any commit subject starts with `BREAKING CHANGE:` or its first word ends with `!:` (for example `feat!:`, `fix!:`, `chore!:`, `feat(scope)!:`).
+- **MINOR**: If any commit subject starts with `feat:` or `feat(<scope>):`, case-insensitive.
 - **PATCH**: Any other commit message.
 
 If no existing tags matching `v*` are found, versioning starts from `0.0.0`.
 
-Each run also publishes a Git tag matching the new version. By default tags look like `vX.Y.Z`, but you can provide a `prefix` input (for example `license-module`) to emit tags such as `license-module-vX.Y.Z`. The workflow creates a GitHub release with auto-generated release notes for the generated tag. If a tag or release for the computed version already exists, the workflow aborts with an error.
+Each run also publishes a Git tag matching the new version. By default tags look like `vX.Y.Z`, but you can provide a `prefix` input (for example `license-module`) to emit tags such as `license-module-vX.Y.Z`. When no `prefix` is set, the action creates a GitHub release with auto-generated release notes. When a `prefix` is set, the GitHub release is still created, but auto-generated release notes are skipped. If a tag or release for the computed version already exists, the action aborts with an error (an existing release may be immutable and unable to receive assets).
+
+### Release notes predecessor
+
+The tag used as the start point for auto-generated release notes depends on whether `prefix` and `prerelease_name` are set. This lookup only applies when `prefix` is empty, because prefixed releases do not generate release notes:
+
+- **No `prefix` and no `prerelease_name`** — the predecessor is taken from GitHub's release metadata, so release notes compare against something of the same "level":
+  - For a stable release (`is_prerelease: "false"`): the release currently flagged as **latest** on GitHub (via `GET /repos/{owner}/{repo}/releases/latest`).
+  - For a prerelease (`is_prerelease: "true"`, no suffix name): the newest non-draft release (stable or prerelease) whose tag matches `v<major>.<minor>.<patch>`, ordered by publication date.
+  - If the GitHub API returns no matching release (brand-new repo, nothing flagged yet, API error), the action falls back to the git-tag-based predecessor described below.
+- **No `prefix` and a `prerelease_name` set** — name-neighbour matching from local tags: the newest prerelease tag with the same base version and suffix name is used, falling back to the newest matching stable tag.
+
+The `previous_tag` output always reflects the newest matching stable tag from local git history, regardless of which mode is used for the release notes predecessor.
 
 ### Commit message hook
 
