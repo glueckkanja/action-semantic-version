@@ -113,10 +113,8 @@ if ($IsPrerelease -and $HasPrereleaseSuffix) {
 
 # Build the final version string and determine changelog base tag
 if ($IsPrerelease -and $HasPrereleaseSuffix) {
-  # Increment prerelease version
   $PrereleaseVersion = $LastPrereleaseVersion + 1
   $NewVersion = "$TargetBaseVersion-$PrereleaseName.$PrereleaseVersion"
-  # For stable releases, always use the last stable tag
   $ChangelogBaseTag = $LastPrereleaseTag ? $LastPrereleaseTag : $LastStableTag
 } else {
   $NewVersion = $TargetBaseVersion

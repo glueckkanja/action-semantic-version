@@ -1,15 +1,30 @@
 # action-semver-version
 
-This reusable action can be used to generate semantic version numbers for your releases in other repositories.
+Provides a reusable semantic versioning action for use across repositories
 
-## Semantic Versioning workflow
+## Semantic Versioning Action
 
-Use the reusable semver action to compute the next semantic version, expose it as an output, and tag the current commit.
+This action generates a semantic version of the form `vMAJOR.MINOR.PATCH` (e.g. `v1.2.3`).
 
-### Calling the workflow
+The bump type is determined from commit messages:
+
+- **Major** — triggered by `BREAKING CHANGE:` or any type ending in `!:` (e.g. `fix!:`, `feat!:`). Increments MAJOR and resets MINOR and PATCH to `0`.
+- **Minor** — triggered by `feat:` or `feat(<scope>):`. Increments MINOR and resets PATCH to `0`.
+- **Patch** — any other commit message: increments PATCH.
+
+**Repository structure:**
+
+- `action.yml` — The action definition with inputs, outputs, and composite steps.
+- `scripts/` — PowerShell scripts executed by the action:
+  - `compute-next-version.ps1` — Calculates the next version based on commit history.
+  - `create-and-push-tag.ps1` — Creates and pushes the Git tag.
+  - `create-github-release.ps1` — Creates the GitHub release with release notes.
+  - `write-step-summary.ps1` — Generates the GitHub Actions step summary.
+
+### Calling the action
 
 ```yaml
-# actions.yml in a consumer repository
+# action.yml in a consumer repository
 name: Release
 
 on:
@@ -69,12 +84,12 @@ jobs:
 
 - `github_token` _(string, required)_ – GitHub token with `contents: write` permission. Pass `${{ secrets.GITHUB_TOKEN }}`.
 - `prefix` _(string, default: empty)_ – Optional prefix prepended to generated tags (for example `license-module-vX.Y.Z`).
-- `suppress_release` _(boolean, default: false)_ – When `true`, skips creating a GitHub release while still creating tags (unless suppressed below).
+- `suppress_release` _(string `"true"/"false"`, default: `"false"`)_ – When `"true"`, skips creating a GitHub release while still creating tags (unless suppressed below).
 - `is_draft_release` _(string `"true"/"false"`, default: `"false"`)_ – When `"true"`, creates the GitHub release as a draft.
-- `suppress_tag` _(boolean, default: false)_ – When `true`, skips creating both the Git tag and the GitHub release.
-- `check_last_commit_only` _(boolean, default: false)_ – When `true`, only the most recent commit is inspected to determine the bump type instead of all commits since the previous tag.
-- `is_prerelease` _(boolean, default: false)_ – When `true`, generates a prerelease version (for example `1.2.3-rc.1`).
-- `prerelease_name` _(string, default: "")_ – Name for the prerelease identifier (for example `rc`, `alpha`, `beta`). If set, the version includes a suffix (for example `1.8.2-rc.1`). If empty, the version remains plain semver (for example `1.8.2`) while still creating a prerelease release.
+- `suppress_tag` _(string `"true"/"false"`, default: `"false"`)_ – When `"true"`, skips creating both the Git tag and the GitHub release.
+- `check_last_commit_only` _(string `"true"/"false"`, default: `"false"`)_ – When `"true"`, only the most recent commit is inspected to determine the bump type instead of all commits since the previous tag.
+- `is_prerelease` _(string `"true"/"false"`, default: `"false"`)_ – When `"true"`, generates a prerelease version (for example `1.2.3-rc.1`).
+- `prerelease_name` _(string, default: empty)_ – Optional prerelease identifier name (for example `rc`, `alpha`, `beta`). If set, the version includes a suffix (for example `1.8.2-rc.1`). If empty, the version remains plain semver (for example `1.8.2`) while still creating a prerelease release.
 - `asset_path` _(string, default: empty)_ – Path to a file or directory to attach to the release as assets. When set, the release is created as a draft first and assets are uploaded before publication. If `is_draft_release` is `"true"`, the release remains a draft after assets are uploaded.
 
 ### Outputs
@@ -98,7 +113,7 @@ The action inspects commit messages and applies the following precedence:
 
 If no existing tags matching `v*` are found, versioning starts from `0.0.0`.
 
-Each run also publishes a Git tag matching the new version. By default tags look like `vX.Y.Z`, but you can provide a `prefix` input (for example `license-module`) to emit tags such as `license-module-vX.Y.Z`. When no `prefix` is set, the action creates a GitHub release with auto-generated release notes. When a `prefix` is set, the GitHub release is still created, but auto-generated release notes are skipped. If a tag or release for the computed version already exists, the action aborts with an error (an existing release may be immutable and unable to receive assets).
+Each run also publishes a Git tag matching the new version. By default tags look like `vX.Y.Z`, but you can provide a `prefix` input (for example `license-module`) to emit tags such as `license-module-vX.Y.Z`. When no `prefix` is set, the action creates a GitHub release with auto-generated release notes. When a `prefix` is set, the GitHub release is still created, but auto-generated release notes are skipped. If a tag for the computed version already exists, the action aborts with an error. It also fails if a release for the generated tag already exists, because an existing release may be immutable and unable to receive assets.
 
 ### Release notes predecessor
 
@@ -111,68 +126,3 @@ The tag used as the start point for auto-generated release notes depends on whet
 - **No `prefix` and a `prerelease_name` set** — name-neighbour matching from local tags: the newest prerelease tag with the same base version and suffix name is used, falling back to the newest matching stable tag.
 
 The `previous_tag` output always reflects the newest matching stable tag from local git history, regardless of which mode is used for the release notes predecessor.
-
-### Commit message hook
-
-A PowerShell-based Git commit-msg hook is available at `git/hooks/enforceConventionalCommits/commit-msg.ps1` to enforce the [Conventional Commits](https://www.conventionalcommits.org/) standard locally before commits are created.
-
-### Installation
-
-#### Windows
-
-1. Copy **both** the `commit-msg.ps1` and `commit-msg` to your repository's `.git/hooks` directory
-
-#### Mac / Linux
-
-1. Copy just the `commit-msg.ps1` to your repository's `.git/hooks` directory
-1. Remove the .ps1 ending (so the final filename inside the `.git/hooks` directory is `commit-msg`)
-1. Add execution permissions:
-
-```bash
-chmod +x .git/hooks/commit-msg
-```
-
-### What it validates
-
-The hook validates that commit messages follow the Conventional Commits format:
-
-```
-<type>[optional scope][optional !]: <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-#### Valid types
-
-| Type       | Description                                               |
-| ---------- | --------------------------------------------------------- |
-| `feat`     | A new feature                                             |
-| `fix`      | A bug fix                                                 |
-| `docs`     | Documentation only changes                                |
-| `style`    | Code style changes (formatting, missing semicolons, etc.) |
-| `refactor` | Code change that neither fixes a bug nor adds a feature   |
-| `perf`     | Performance improvements                                  |
-| `test`     | Adding or correcting tests                                |
-| `build`    | Changes to build system or dependencies                   |
-| `ci`       | Changes to CI configuration files and scripts             |
-| `chore`    | Other changes that don't modify src or test files         |
-| `revert`   | Reverts a previous commit                                 |
-| `deps`     | Dependency updates                                        |
-
-#### Examples
-
-```
-feat: add user authentication
-fix(api): resolve null reference exception
-feat(auth)!: change login flow (breaking change)
-docs: update README with setup instructions
-```
-
-### Warnings
-
-The hook will display warnings (but not reject the commit) for:
-
-- **Long subject lines**: Subject lines longer than 72 characters
-- **Missing breaking change documentation**: When `!` is used but no `BREAKING CHANGE:` section is present in the body
